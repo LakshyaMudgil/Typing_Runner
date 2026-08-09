@@ -7,7 +7,7 @@ pygame.init()
 from nltk.corpus import words
 
 # ============================================================
-#   CODENEST TYPING RACER — Redesigned to match CodeNest UI
+#   CODENEST TYPING RACER
 # ============================================================
 
 wordlist = words.words()
@@ -29,20 +29,20 @@ pygame.display.set_caption('CodeNest · Typing Racer')
 timer  = pygame.time.Clock()
 fps    = 60
 
-# ── CodeNest Color Palette ───────────────────────────────────
-CN_BG           = (10,  15,  30)   # dark navy — body bg
-CN_SIDEBAR      = (15,  23,  42)   # sidebar bg
-CN_CARD         = (255, 255, 255, 20)   # glass card (alpha)
+# ──  Color Palette ───────────────────────────────────
+CN_BG           = (10,  15,  30)   
+CN_SIDEBAR      = (15,  23,  42)  
+CN_CARD         = (255, 255, 255, 20)   
 CN_CARD_BORDER  = (255, 255, 255, 35)
-CN_ACCENT       = (255,  59,  92)  # #ff3b5c  — red accent
-CN_ACCENT2      = (108,  92, 231)  # #6C5CE7  — purple
-CN_GREEN        = ( 16, 185, 129)  # #10b981
-CN_YELLOW       = (252, 211,  77)  # #fcd34d
-CN_ORANGE       = (253, 110,  33)  # #fd6e21
+CN_ACCENT       = (255,  59,  92)  
+CN_ACCENT2      = (108,  92, 231)  
+CN_GREEN        = ( 16, 185, 129) 
+CN_YELLOW       = (252, 211,  77)  
+CN_ORANGE       = (253, 110,  33)  
 CN_WHITE        = (255, 255, 255)
 CN_MUTED        = (160, 160, 190)
 CN_TEXT_DIM     = (100, 110, 140)
-CN_SIDEBAR_W    = 220              # sidebar width in pixels
+CN_SIDEBAR_W    = 220          
 
 # ── Fonts (falls back to pygame default if custom not present)
 def load_font(size, bold=False):
@@ -139,7 +139,7 @@ class Word:
         self.speed = speed
         self.y_pos = y_pos
         self.x_pos = x_pos
-        # each word gets a subtle color tint based on speed
+        
         tints = [CN_WHITE, (200, 230, 255), (255, 200, 200)]
         self.base_color = tints[min(speed - 1, 2)]
 
@@ -147,21 +147,21 @@ class Word:
         act_len = len(active_str)
         matched  = active_str == self.text[:act_len] and act_len > 0
 
-        # word background pill
+    
         tw = font_word.size(self.text)[0]
         draw_rect_alpha(screen, (255, 255, 255, 12),
                         (self.x_pos - 8, self.y_pos - 4, tw + 16, 42), 8)
 
-        # render full word in base color
+
         screen.blit(font_word.render(self.text, True, self.base_color),
                     (self.x_pos, self.y_pos))
 
-        # overlay matched prefix in accent green
+        
         if matched and act_len > 0:
             screen.blit(font_word.render(active_str, True, CN_GREEN),
                         (self.x_pos, self.y_pos))
 
-        # speed indicator dot
+        
         dot_colors = [CN_GREEN, CN_YELLOW, CN_ACCENT]
         pygame.draw.circle(screen, dot_colors[min(self.speed - 1, 2)],
                            (self.x_pos - 4, self.y_pos + 18), 4)
@@ -189,8 +189,6 @@ class Button:
         hovered = rect.collidepoint(mouse)
         pressed = pygame.mouse.get_pressed()[0]
 
-        # offset mouse by surf position if surf != screen
-        # (for pause overlay surface, mouse coords are global so just use global)
         bg = self.color
         if hovered:
             bg = tuple(min(c + 30, 255) for c in self.color)
@@ -235,7 +233,7 @@ def draw_sidebar():
         color = CN_WHITE if active else CN_MUTED
         screen.blit(font_nav.render(label, True, color), (20, y + 10))
 
-    # focus mode card at bottom
+    
     card_y = HEIGHT - 90
     draw_rect_alpha(screen, (*CN_ACCENT2, 30), (10, card_y, CN_SIDEBAR_W - 20, 72), 12)
     pygame.draw.rect(screen, (*CN_ACCENT2, 60), (10, card_y, CN_SIDEBAR_W - 20, 72), 1, border_radius=12)
@@ -254,7 +252,7 @@ def draw_topbar():
     # page title
     screen.blit(font_med.render('Typing Racer', True, CN_WHITE), (CN_SIDEBAR_W + 20, 16))
 
-    # stat pills — score / level / lives
+    
     stat_pill(screen, 'SCORE',  score,      CN_ACCENT2, WIDTH - 360, 7)
     stat_pill(screen, 'LEVEL',  level,      CN_GREEN,   WIDTH - 240, 7)
     stat_pill(screen, 'LIVES',  '♥' * max(lives, 0), CN_ACCENT, WIDTH - 120, 7)
@@ -282,7 +280,7 @@ def draw_input_bar():
     draw_rect_alpha(screen, (*CN_SIDEBAR, 230), (GAME_X, bar_y, GAME_W, 80), 0)
     pygame.draw.line(screen, (*CN_WHITE, 25), (GAME_X, bar_y), (WIDTH, bar_y), 1)
 
-    # input box
+    
     iw = GAME_W - 220
     draw_rect_alpha(screen, (255, 255, 255, 15), (GAME_X + 16, bar_y + 16, iw, 48), 12)
     pygame.draw.rect(screen, (*CN_ACCENT2, 180), (GAME_X + 16, bar_y + 16, iw, 48), 1, border_radius=12)
@@ -295,16 +293,16 @@ def draw_input_bar():
         screen.blit(font_input.render('Start typing...', True, CN_TEXT_DIM),
                     (GAME_X + 28, bar_y + 26))
 
-    # cursor blink (simple: show if time % 1000 < 500)
+    
     if pygame.time.get_ticks() % 1000 < 600 and active_str is not None:
         cx = GAME_X + 28 + font_input.size(active_str)[0]
         pygame.draw.rect(screen, CN_ACCENT, (cx, bar_y + 28, 2, 28))
 
-    # ENTER hint
+    
     screen.blit(font_score.render('ENTER / SPACE to submit   ESC to pause', True, CN_TEXT_DIM),
                 (GAME_X + 20, bar_y + 66))
 
-    # pause button
+    
     pause_btn = Button(WIDTH - 180, bar_y + 16, 100, 48, '⏸  Pause', screen, CN_ACCENT2)
     return pause_btn.draw()
 
@@ -342,7 +340,7 @@ def draw_pause():
     play_clicked = play_btn.draw()
     quit_clicked = quit_btn.draw()
 
-    # word length section
+    
     screen.blit(font_score.render('Word Length Filter:', True, CN_MUTED), (mx + 24, my + 175))
     for i in range(len(choices)):
         bx = mx + 30 + i * 78
